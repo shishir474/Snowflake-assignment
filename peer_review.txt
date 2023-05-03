@@ -1,0 +1,113 @@
+Anuj's Code Review:
+
+Task 1: 
+Created three new roles: Admin, Developer, and PII
+Granted the Admin role to the AccountAdmin role
+Granted the Developer role to the Admin role
+Granted the PII role to the AccountAdmin role
+
+Task 2:
+Created a new warehouse called assignment_wh with a medium size
+Granted all privileges on the assignment_wh warehouse to the Admin role
+Granted the ability to create databases on the account to the Admin role
+
+Task 3: 
+Switched to the Admin role
+
+Task 4: 
+Created a new database called assignment_db
+
+Task 5: 
+Created a new schema within the assignment_db database called my_schema
+
+Task 6: 
+Created a new table within the my_schema schema called EMPLOYEE_DATA
+
+Task 7: 
+Created a new file format called my_json_format with a JSON type
+Created a new table called variant_table with a variant_data column
+Copied data from a variant file into the variant_table
+
+Task 8: 
+Created a new file format called my_csv_format with a CSV type, comma field delimiter, and skip header option
+Created a new internal stage called internal_stage with the my_csv_format file format
+Created a new storage integration called s3_integration with an S3 storage provider, enabled flag, and an allowed location for an S3 bucket with employee.csv data
+Granted all privileges on the s3_integration integration to the Admin role
+Created a new external stage called external_stage with a URL, storage integration, and file format
+Listed the contents of the internal_stage and external_stage stages
+
+Task 9: 
+Created two new tables called employee_internal_stage and employee_external_stage with columns and default values
+Copied data from the internal_stage into the employee_internal_stage table, with a specific column order and file name
+Copied data from the external_stage into the employee_external_stage table, with a specific column order and file name
+Selected and displays the first ten rows of both tables
+
+Task 10: 
+Created a new file format called my_parquet_format with a Parquet type
+Created a new stage called parquet_stage with the my_parquet_format file format
+Infered the schema of the data in the parquet_stage
+
+Task 11: 
+Selected data from a Parquet file in a stage
+
+Task 12: 
+Created two new masking policies for email and contact number data, with a CASE statement to determine when to mask data
+Modified the email and contact_no columns in both the employee_internal_stage and employee_external_stage tables to use the corresponding masking policies
+Selected and displayed the first ten rows of both tables with masked data
+Granted privileges to the PII role to access the warehouse, database, schema, and tables
+Switched to the PII role and selected and displayed the first ten rows of both tables with unmasked data
+
+
+
+
+
+Ashish's Code Review:
+
+Task 1:
+Created 3 roles admin, developer and pii
+Granted roles to user 
+Granted roles in order to create hierarchy as mentioned in the problem
+
+Task 2:
+Using role accountadmin created warehouse
+Grant privilege of creating database to role admin
+Grant priviledge on the warehouse to role admin
+
+Task 3:
+Switched to admin role
+
+Task 4:
+Created Database assignment_db
+
+Task 5:
+Created schema my_schema
+
+Task 6: 
+Created a table with PII column
+Created an internal stage and loaded the employee data into that stage using snowsql
+Copied the data from the internal stage to employees table
+
+Task 7:
+Created a variant table employee_variant
+Copied the data from the internal stage to the employee_variant table
+
+Task 8:
+Created integration object 
+Created an external stage pointing to s3 bucket
+
+Task 9:
+Copied data into table from external stage
+
+Task 10:
+Load any parquet file in stage and infer its schema
+Created parquet file format and loaded the data in internal stage
+Infered the schema of the parquet file in internal stage
+
+Task 11: 
+Run a select query on this parquet file without loading it to a table
+
+Task 12:
+Create a masking policy for email column
+
+
+
