@@ -13,10 +13,10 @@ TO ROLE admin;
 GRANT ROLE pii
 TO ROLE accountadmin;
 
--- CREATE warehouse
+-- using role accountadmin to create warehouse
 USE ROLE accountadmin;
 
-
+-- create warehouse
 CREATE OR REPLACE warehouse assignment_wh
 WITH warehouse_type = 'Standard'
 warehouse_size=  'Medium'
@@ -27,20 +27,26 @@ comment = 'This warehouse is to be used for evaluating assignment queries';
 
 USE warehouse assignment_wh;
 
+-- grant priviledges on warehouse
 GRANT usage ON warehouse assignment_wh TO ROLE admin;
 GRANT usage ON warehouse assignment_wh TO ROLE developer;
 GRANT usage ON warehouse assignment_wh TO ROLE pii;
 
 GRANT CREATE DATABASE ON ACCOUNT TO admin;
+
+-- using role admin to create database
 USE ROLE admin;
 CREATE or REPLACE database assignment_db;
 
+-- grant priviledges on database
 GRANT usage ON database assignment_db TO ROLE admin;
 GRANT usage ON database assignment_db TO ROLE developer;
 GRANT usage ON database assignment_db TO ROLE pii;
 
+-- create schema
 CREATE or REPLACE schema assignment_db.my_schema;
 
+-- grant priviledges on schema
 GRANT usage ON schema assignment_db.my_schema TO ROLE admin;
 GRANT usage ON schema assignment_db.my_schema TO ROLE developer;
 GRANT usage ON schema assignment_db.my_schema TO ROLE pii;
@@ -48,6 +54,7 @@ GRANT usage ON schema assignment_db.my_schema TO ROLE pii;
 GRANT SELECT ON TABLE assignment_db.my_schema.employees_ext TO ROLE developer;
 GRANT SELECT ON TABLE assignment_db.my_schema.employees_ext TO ROLE pii;
 
+-- create table for external stage
 CREATE OR REPLACE TABLE assignment_db.my_schema.employees_ext(
 id int,
 first_name string,
@@ -60,11 +67,13 @@ elt_by STRING DEFAULT 'AWS',
 filename STRING
 );
 
+-- create file format
 CREATE OR REPLACE FILE FORMAT assignment_db.my_schema.csv_format
 type = 'csv'
 field_delimiter = ','
 skip_header = 1;
 
+-- create integration object
 CREATE OR REPLACE STORAGE INTEGRATION s3_int
   TYPE = EXTERNAL_STAGE
   STORAGE_PROVIDER = 'S3'
@@ -74,11 +83,13 @@ CREATE OR REPLACE STORAGE INTEGRATION s3_int
 
 DESC INTEGRATION s3_int;
 
+-- create stage object
 CREATE OR REPLACE stage csv_stage
 url = 's3://shishirsnowflakebucket/csv/'
 FILE_FORMAT = assignment_db.my_schema.csv_format
 STORAGE_INTEGRATION = s3_int;
 
+-- list files in the stage
 List @csv_stage;
 desc stage csv_stage;
 
@@ -89,7 +100,7 @@ files = ('employee_data_1.csv');
 
 SELECT * FROM assignment_db.my_schema.employees_ext;
 
-
+-- create table for internal stage
 CREATE OR REPLACE TABLE assignment_db.my_schema.employees_int(
 id int,
 first_name string,
@@ -107,11 +118,13 @@ FROM @int_stage;
 
 SELECT * FROM assignment_db.my_schema.employees_int;
 
+-- create table of variant type
 CREATE OR REPLACE TABLE assignment_db.my_schema.employees_var(
 id int,
 data variant
 );
 
+-- Insert into table of variant type
 -- OBJECT_INSERT function to construct a JSON object fOR each row in the my_structured_TABLE 
 INSERT INTO assignment_db.my_schema.employees_var
 SELECT id, object_insert(object_insert(object_insert(object_insert(object_insert({}, 'first_name', first_name), 'last_name', last_name), 'email', email), 'location', location), 'department', department)
@@ -119,13 +132,15 @@ FROM assignment_db.my_schema.employees_int;
 
 SELECT * FROM assignment_db.my_schema.employees_var;
 
---CREATE variant version of dataset
+-- create parquet file format
 CREATE OR REPLACE FILE FORMAT parquet_format
 type = 'parquet';
 
+-- create stage object 
 CREATE OR REPLACE stage parquet_stage
 FILE_FORMAT = parquet_format;
 
+-- load data in parquet stage
 -- put file:///users/shishirsingh/Desktop/userdata1.parquet @parquet_stage;
 
 -- inferschema of the parquet file
@@ -134,7 +149,6 @@ SELECT * FROM TABLE(infer_schema(location=>'@parquet_stage',FILE_FORMAT=>'parque
 SELECT * FROM @parquet_stage;
 
 SELECT $1:birthdate::string, $1:cc::string FROM @parquet_stage;
-
 
 
 -- implementing masking policy
